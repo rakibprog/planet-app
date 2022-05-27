@@ -1,4 +1,4 @@
-import { View,SafeAreaView,FlatList,StyleSheet,Pressable} from 'react-native';
+import { View,SafeAreaView,FlatList,StyleSheet,Pressable, TextInput} from 'react-native';
 import React from 'react';
 import Text from '../components/text';
 import PlanetHeader from '../components/planet-header/planet-header';
@@ -6,35 +6,53 @@ import { colors } from './../theme/color';
 import { PLANET_LIST } from './../data/planet-list';
 import { spacing } from './../theme/spacing';
 import { AntDesign } from '@expo/vector-icons'
+import { useNavigation } from '@react-navigation/native';
 
 
+const PlanetItem =  ({item}) => {
+    const {name,color} = item;
+    const navigation = useNavigation();   
+  return(
+        <Pressable onPress={()=>{
+          navigation.navigate("Details", {planet: item});
+      }} style={styles.item}>
+        <View style={{flexDirection:'row',alignItems:'center'}}>
+            <View style={[styles.circle,{backgroundColor:color}]}/>
+            <Text style={styles.itemName} preset="h3">{name}</Text>
+        </View>
+        <View>
+          <AntDesign name="right" size={18} color="white" />
+        </View>              
+      </Pressable>
+      );
+}
 
 export default function Home({navigation}) {
+  const renderItem = ({item})=>{
+    return (
+       <PlanetItem item = {item}/>
+    );
+  }
+  
   return (
    <SafeAreaView style={styles.container}>
          <PlanetHeader></PlanetHeader>
-        <FlatList contentContainerStyle={styles.list} ItemSeparatorComponent={()=> <View style={styles.separator}/>} data = {PLANET_LIST}
-          renderItem ={({item})=>{
-              return (
-                <Pressable onPress={()=>{
-                    navigation.navigate("Details");
-                }} style={styles.item}>
-                  <View style={{flexDirection:'row',alignItems:'center'}}>
-                      <View style={[styles.circle,{backgroundColor:item.color}]}/>
-                      <Text style={styles.itemName} preset="h3">{item.name}</Text>
-                  </View>
-                  <View>
-                    <AntDesign name="right" size={18} color="white" />
-                  </View>              
-              </Pressable>
-              );
+         <TextInput
+          placeholder='Type the planet name' 
+          placeholderTextColor={colors.white}
+          autoComplete={false} 
+          style={styles.searchInput}
+          onChangeText={(text)=>{
+              console.log(text);
           }}
+          />
+        <FlatList contentContainerStyle={styles.list} ItemSeparatorComponent={()=> <View style={styles.separator}/>} data = {PLANET_LIST}
+          renderItem ={renderItem}
           keyExtractor={(item)=>item.name}
         />
    </SafeAreaView>
   );
 }
-
 
 const styles = StyleSheet.create({
       container:{
@@ -65,5 +83,13 @@ const styles = StyleSheet.create({
       separator:{
          borderBottomColor:colors.white,
          borderBottomWidth:0.5,
+      },
+      searchInput:{
+        color:colors.white,
+        fontSize:spacing[4],
+        borderBottomColor:colors.white,
+        borderBottomWidth:0.5,
+        padding:spacing[4],
+        margin:spacing[5],
       }
 });
